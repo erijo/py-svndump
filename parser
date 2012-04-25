@@ -1,0 +1,16 @@
+#!/usr/bin/python
+
+import sys
+
+import svndump.dumpfile as dumpfile
+from svndump.record import *
+
+def main(infile, outfile):
+    reader = dumpfile.DumpFileReader(infile)
+    writer = dumpfile.DumpFileWriter(outfile)
+
+    for record in reader:
+        writer.write(record)
+
+if __name__ == '__main__':
+    main(sys.stdin.fileno(), sys.stdout.fileno())
