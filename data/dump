@@ -1,0 +1,90 @@
+SVN-fs-dump-format-version: 2
+
+UUID: 8a2c36d3-3b21-4a8d-a093-ed3aaf6c8a86
+
+Revision-number: 0
+Prop-content-length: 56
+Content-length: 56
+
+K 8
+svn:date
+V 27
+2012-04-18T19:02:18.367456Z
+PROPS-END
+
+Revision-number: 1
+Prop-content-length: 119
+Content-length: 119
+
+K 8
+svn:date
+V 27
+2012-04-18T19:02:59.813175Z
+K 7
+svn:log
+V 20
+Created initial dirs
+K 10
+svn:author
+V 4
+erik
+PROPS-END
+
+Node-path: branches
+Node-kind: dir
+Node-action: add
+Prop-content-length: 10
+Content-length: 10
+
+PROPS-END
+
+
+Node-path: tags
+Node-kind: dir
+Node-action: add
+Prop-content-length: 10
+Content-length: 10
+
+PROPS-END
+
+
+Node-path: trunk
+Node-kind: dir
+Node-action: add
+Prop-content-length: 10
+Content-length: 10
+
+PROPS-END
+
+
+Revision-number: 2
+Prop-content-length: 106
+Content-length: 106
+
+K 7
+svn:log
+V 8
+Add file
+K 10
+svn:author
+V 4
+erik
+K 8
+svn:date
+V 27
+2012-04-18T19:58:24.394585Z
+PROPS-END
+
+Node-path: trunk/file
+Node-kind: file
+Node-action: add
+Prop-content-length: 10
+Text-content-length: 7
+Text-content-md5: 14758f1afd44c09b7992073ccf00b43d
+Text-content-sha1: 988881adc9fc3655077dc2d4d757d480b5ea0e11
+Content-length: 17
+
+PROPS-END
+foobar
+
+
