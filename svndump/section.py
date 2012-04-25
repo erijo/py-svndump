@@ -139,6 +139,9 @@ class PropertySection(object):
             length += len(property)
         return length
 
+    def __iter__(self):
+        return self.properties.__iter__()
+
     def write(self, stream):
         for property in self.properties:
             property.write(stream)
