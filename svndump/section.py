@@ -161,16 +161,40 @@ class Content(object):
         object.__init__(self)
         self.stream = stream
         self.length = int(length)
+        self.stream.block(self)
 
     def __len__(self):
         return self.length
 
-    def write(self, stream):
-        while self.length > 0:
-            readSize = min(self.length, self.CHUNK_SIZE)
-            self.length -= readSize
+    def __iter__(self):
+        return self
 
-            data = self.stream.read(readSize)
+    def __next__(self):
+        if self.length == 0:
+            raise StopIteration
+
+        readSize = min(self.length, self.CHUNK_SIZE)
+        data = self.stream.read(readSize, self)
+        self.length -= len(data)
+        if self.length == 0:
+            empty_line = self.stream.readline(self)
+            self.stream.unblock(self)
+
+        if len(data) != readSize:
+            stream.error("failed to read content")
+        return data
+    next = __next__
+
+    def discard(self):
+        for data in self:
+            pass
+
+    def write(self, stream):
+        for data in self:
             stream.write(data)
-        empty_line = self.stream.readline()
         stream.writeline()
+
+    @staticmethod
+    def read(stream, length):
+        return Content(stream, length)
+        

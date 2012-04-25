@@ -5,6 +5,9 @@ class Record(object):
         object.__init__(self)
         self.headers = headers
 
+    def discard(self):
+        pass
+
     def write(self, stream):
         self.headers.write(stream)
 
@@ -97,6 +100,10 @@ class NodeRecord(Record):
         self.properties = properties
         self.content = content
 
+    def discard(self):
+        if self.content is not None:
+            self.content.discard()
+
     def write(self, stream):
         prop_length = 0
         if self.properties is not None:
@@ -129,7 +136,8 @@ class NodeRecord(Record):
 
         content = None
         if NodeRecord.TEXT_CONTENT_LENGTH in headers:
-            content = Content(stream, headers[NodeRecord.TEXT_CONTENT_LENGTH])
+            content = Content.read(
+                stream, headers[NodeRecord.TEXT_CONTENT_LENGTH])
         else:
             empty_line = stream.readline()
             empty_line = stream.readline()

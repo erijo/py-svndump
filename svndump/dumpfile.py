@@ -21,26 +21,39 @@ class DumpFile(object):
 class DumpFileReader(DumpFile):
     def __init__(self, file):
         DumpFile.__init__(self, file, 'rb')
+        self.record = None
         self.offset = 0
         self.last_line = ""
+        self.blocker = None
 
     def error(self, message):
         raise DumpFileError(self.offset, self.last_line, message)
+
+    def block(self, blocker):
+        self.blocker = blocker
+
+    def unblock(self, blocker):
+        assert self.blocker == blocker
+        self.blocker = None
 
     def __iter__(self):
         return self
 
     def __next__(self):
-        record = Record.read(self)
-        if record is None:
+        if self.record is not None:
+            self.record.discard()
+
+        self.record = Record.read(self)
+        if self.record is None:
             if len(self.read(1)) == 0:
                 raise StopIteration
             else:
                 self.error("premature end")
-        return record
+        return self.record
     next = __next__
 
-    def readline(self):
+    def readline(self, caller=None):
+        assert caller is None or caller == self.blocker
         line = self._buffer.readline()
         if len(line) == 0:
             raise EOFError()
@@ -48,7 +61,8 @@ class DumpFileReader(DumpFile):
         self.last_line = line[:-1].decode('ASCII')
         return self.last_line
 
-    def read(self, length):
+    def read(self, length, caller=None):
+        assert caller is None or caller == self.blocker
         data = self._buffer.read(length)
         self.offset += len(data)
         return data
