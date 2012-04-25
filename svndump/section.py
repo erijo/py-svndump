@@ -14,7 +14,7 @@ class Header(object):
             return None
         header = line.split(': ', 1)
         if len(header) != 2:
-            raise ValueError("invalid header line: '%s'" % line)
+            stream.error("invalid header line")
         return Header(header[0], header[1])
 
 class HeaderSection(object):
@@ -105,13 +105,13 @@ class Property:
             return None
 
         if (line[0] != 'K' and line[0] != 'D'):
-            raise ValueError("invalid property line '%s'" % line)
+            stream.error("invalid property line")
 
         def read_segment(stream, line):
             length = int(line[2:])
             segment = stream.read(length)
             if len(segment) != length:
-                raise ValueError("invalid property length '%s'" % line)
+                stream.error("incorrect property length '%s'" % length)
             stream.readline()
             return segment
 
@@ -121,7 +121,7 @@ class Property:
         if line[0] == 'K':
             line = stream.readline()
             if line[0] != 'V':
-                raise ValueError("invalid property line '%s'" % line)
+                stream.error("line is not property value")
             value = read_segment(stream, line)
 
         return Property(key, value)
