@@ -14,13 +14,14 @@ class DumpFileError(Exception):
             self.message, self.last_line, self.offset)
 
 class DumpFile(object):
-    def __init__(self, file, mode):
+    def __init__(self, file, mode, codec):
         object.__init__(self)
         self._buffer = io.open(file, mode=mode, closefd=False)
+        self._codec = codec
 
 class DumpFileReader(DumpFile):
-    def __init__(self, file):
-        DumpFile.__init__(self, file, 'rb')
+    def __init__(self, file, codec='ascii'):
+        DumpFile.__init__(self, file, 'rb', codec=codec)
         self.record = None
         self.offset = 0
         self.last_line = ""
@@ -58,7 +59,7 @@ class DumpFileReader(DumpFile):
         if len(line) == 0:
             raise EOFError()
         self.offset += len(line)
-        self.last_line = line[:-1].decode('ASCII')
+        self.last_line = line[:-1].decode(self._codec)
         return self.last_line
 
     def read(self, length, caller=None):
@@ -68,12 +69,12 @@ class DumpFileReader(DumpFile):
         return data
 
 class DumpFileWriter(DumpFile):
-    def __init__(self, file):
-        DumpFile.__init__(self, file, 'wb')
+    def __init__(self, file, codec='ascii'):
+        DumpFile.__init__(self, file, 'wb', codec=codec)
 
     def writeline(self, line=""):
         data = "%s\n" % line
-        self._buffer.write(data.encode('ASCII'))
+        self._buffer.write(data.encode(self._codec))
 
     def write(self, data):
         if hasattr(data, 'write'):
