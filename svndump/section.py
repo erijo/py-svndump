@@ -52,6 +52,10 @@ class HeaderSection(object):
         for header in self.headers:
             if header.key == key:
                 return header.value
+        try:
+            return self.headers[key]
+        except TypeError:
+            pass
         raise KeyError(key)
 
     def __setitem__(self, key, value):
