@@ -44,7 +44,17 @@ class DumpFileReader(DumpFile):
         if self.record is not None:
             self.record.discard()
 
-        self.record = Record.read(self)
+        try:
+            while True:
+                data = self._buffer.peek(1)
+                if len(data) == 0 or not data[0].decode(self._codec).isspace():
+                    break
+                self.offset += len(self._buffer.read(1))
+
+            self.record = Record.read(self)
+        except UnicodeDecodeError as e:
+            self.error(str(e))
+
         if self.record is None:
             if len(self.read(1)) == 0:
                 raise StopIteration
