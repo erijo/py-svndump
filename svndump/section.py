@@ -142,6 +142,13 @@ class PropertySection(object):
     def __iter__(self):
         return self.properties.__iter__()
 
+    def __delitem__(self, key):
+        for property in self.properties:
+            if property.key == key:
+                self.properties.remove(property)
+                return
+        raise KeyError(key)
+
     def write(self, stream):
         for property in self.properties:
             property.write(stream)
