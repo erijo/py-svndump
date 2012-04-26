@@ -184,7 +184,7 @@ class Content(object):
             self.stream.unblock(self)
 
         if len(data) != readSize:
-            stream.error("failed to read content")
+            self.stream.error("failed to read content")
         return data
     next = __next__
 
