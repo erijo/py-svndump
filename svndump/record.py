@@ -65,14 +65,13 @@ class RevisionRecord(Record):
         self.headers[self.PROP_CONTENT_LENGTH] = prop_length
         self.headers[self.CONTENT_LENGTH] = prop_length
 
-        self.headers.write(stream)
+        Record.write(self, stream)
         self.properties.write(stream)
         stream.writeline()
 
     @staticmethod
     def read(headers, stream):
         properties = PropertySection.read(stream)
-        empty_line = stream.readline()
         return RevisionRecord(headers, properties)
 
 class NodeRecord(Record):
@@ -115,17 +114,18 @@ class NodeRecord(Record):
             text_length = len(self.content)
             self.headers[self.TEXT_CONTENT_LENGTH] = text_length
 
-        self.headers[self.CONTENT_LENGTH] = prop_length + text_length
-        self.headers.write(stream)
+        if self.properties is not None or self.content is not None:
+            self.headers[self.CONTENT_LENGTH] = prop_length + text_length
+
+        Record.write(self, stream)
 
         if self.properties is not None:
             self.properties.write(stream)
 
         if self.content is not None:
             self.content.write(stream)
-        else:
-            stream.writeline()
 
+        stream.writeline()
         stream.writeline()
 
     @staticmethod
@@ -138,8 +138,5 @@ class NodeRecord(Record):
         if NodeRecord.TEXT_CONTENT_LENGTH in headers:
             content = Content.read(
                 stream, headers[NodeRecord.TEXT_CONTENT_LENGTH])
-        else:
-            empty_line = stream.readline()
-            empty_line = stream.readline()
 
         return NodeRecord(headers, properties, content)

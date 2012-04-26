@@ -39,8 +39,6 @@ class HeaderSection(object):
         except EOFError:
             if len(headers) != 0:
                 raise
-            else:
-                return None
         if len(headers) == 0:
             return None
         return HeaderSection(headers)
@@ -109,7 +107,7 @@ class Property:
             return None
 
         if (line[0] != 'K' and line[0] != 'D'):
-            stream.error("invalid property line")
+            stream.error("invalid property key line")
 
         def read_segment(stream, line):
             length = int(line[2:])
@@ -125,7 +123,7 @@ class Property:
         if line[0] == 'K':
             line = stream.readline()
             if line[0] != 'V':
-                stream.error("line is not property value")
+                stream.error("invalid property value line")
             value = read_segment(stream, line)
 
         return Property(key, value)
@@ -144,7 +142,7 @@ class PropertySection(object):
         return length
 
     def __iter__(self):
-        return self.properties.__iter__()
+        return iter(self.properties)
 
     def __delitem__(self, key):
         for property in self.properties:
@@ -191,7 +189,6 @@ class Content(object):
         data = self.stream.read(readSize, self)
         self.length -= len(data)
         if self.length == 0:
-            empty_line = self.stream.readline(self)
             self.stream.unblock(self)
 
         if len(data) != readSize:
@@ -206,7 +203,6 @@ class Content(object):
     def write(self, stream):
         for data in self:
             stream.write(data)
-        stream.writeline()
 
     @staticmethod
     def read(stream, length):
