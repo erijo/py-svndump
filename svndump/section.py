@@ -93,39 +93,38 @@ class HeaderSection(object):
                 return True
         return False
 
-class Property:
-    def __init__(self, key, value):
-        self.key = key
-        self.value = value
+
+class PropertySection(dict):
+    PROPS_END = "PROPS-END"
+
+    def __init__(self, *args, **kwargs):
+        super(PropertySection, self).__init__(*args, **kwargs)
 
     def dump_length(self):
-        length = len("X %d\n" % len(self.key)) + len(self.key) + 1
-        if self.value is not None:
-            length += len("V %d\n" % len(self.value)) + len(self.value) + 1
+        length = len(self.PROPS_END) + 1
+        for key, value in self.items():
+            length += len("X %d\n" % len(key)) + len(key) + 1
+            if value is not None:
+                length += len("V %d\n" % len(value)) + len(value) + 1
         return length
 
     def write(self, stream):
-        if self.value is None:
-            stream.writeline("D %d" % len(self.key))
-        else:
-            stream.writeline("K %d" % len(self.key))
-        stream.write(self.key)
-        stream.writeline()
-
-        if self.value is not None:
-            stream.writeline("V %d" % len(self.value))
-            stream.write(self.value)
+        for key, value in self.items():
+            if value is None:
+                stream.writeline("D %d" % len(key))
+            else:
+                stream.writeline("K %d" % len(key))
+            stream.write(key)
             stream.writeline()
+
+            if value is not None:
+                stream.writeline("V %d" % len(value))
+                stream.write(value)
+                stream.writeline()
+        stream.writeline("%s" % self.PROPS_END)
 
     @staticmethod
     def read(stream):
-        line = stream.readline()
-        if line == PropertySection.PROPS_END:
-            return None
-
-        if (line[0] != 'K' and line[0] != 'D'):
-            stream.error("invalid property key line")
-
         def read_segment(stream, line):
             length = int(line[2:])
             segment = stream.read(length)
@@ -134,54 +133,26 @@ class Property:
             stream.readline()
             return segment
 
-        key = read_segment(stream, line)
+        section = PropertySection()
 
-        value = None
-        if line[0] == 'K':
-            line = stream.readline()
-            if line[0] != 'V':
-                stream.error("invalid property value line")
-            value = read_segment(stream, line)
-
-        return Property(key, value)
-
-class PropertySection(object):
-    PROPS_END = "PROPS-END"
-
-    def __init__(self, properties):
-        object.__init__(self)
-        self.properties = properties
-
-    def dump_length(self):
-        length = len(self.PROPS_END) + 1
-        for property in self.properties:
-            length += property.dump_length()
-        return length
-
-    def __iter__(self):
-        return iter(self.properties)
-
-    def __delitem__(self, key):
-        for property in self.properties:
-            if property.key == key:
-                self.properties.remove(property)
-                return
-        raise KeyError(key)
-
-    def write(self, stream):
-        for property in self.properties:
-            property.write(stream)
-        stream.writeline("%s" % self.PROPS_END)
-
-    @staticmethod
-    def read(stream):
-        properties = []
         while True:
-            property = Property.read(stream)
-            if property is None:
-                break
-            properties.append(property)
-        return PropertySection(properties)
+            line = stream.readline()
+            if line == PropertySection.PROPS_END:
+                return section
+
+            if line[0] != 'K' and line[0] != 'D':
+                stream.error("invalid property key line")
+            key = read_segment(stream, line)
+
+            value = None
+            if line[0] == 'K':
+                line = stream.readline()
+                if line[0] != 'V':
+                    stream.error("invalid property value line")
+                value = read_segment(stream, line)
+
+            section[key] = value
+
 
 class Content(object):
     CHUNK_SIZE = 2048
