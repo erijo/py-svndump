@@ -65,7 +65,8 @@ class DumpFileReader(DumpFile):
         try:
             while True:
                 data = self._buffer.peek(1)
-                if len(data) == 0 or not data[0].decode(self._codec).isspace():
+                if (len(data) == 0
+                    or not data[0:1].decode(self._codec).isspace()):
                     break
                 self._offset += len(self._buffer.read(1))
 
