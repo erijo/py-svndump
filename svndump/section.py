@@ -224,4 +224,3 @@ class Content(object):
     @staticmethod
     def read(stream, length):
         return Content(stream, length)
-        
