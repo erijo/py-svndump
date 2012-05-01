@@ -78,7 +78,7 @@ class RevisionRecord(Record):
         self.properties = properties
 
     def write(self, stream):
-        prop_length = len(self.properties)
+        prop_length = self.properties.dump_length()
         self.headers[self.PROP_CONTENT_LENGTH] = prop_length
         self.headers[self.CONTENT_LENGTH] = prop_length
 
@@ -123,12 +123,12 @@ class NodeRecord(Record):
     def write(self, stream):
         prop_length = 0
         if self.properties is not None:
-            prop_length = len(self.properties)
+            prop_length = self.properties.dump_length()
             self.headers[self.PROP_CONTENT_LENGTH] = prop_length
 
         text_length = 0
         if self.content is not None:
-            text_length = len(self.content)
+            text_length = self.content.dump_length()
             self.headers[self.TEXT_CONTENT_LENGTH] = text_length
 
         if self.properties is not None or self.content is not None:

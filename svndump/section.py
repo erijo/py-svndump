@@ -98,7 +98,7 @@ class Property:
         self.key = key
         self.value = value
 
-    def __len__(self):
+    def dump_length(self):
         length = len("X %d\n" % len(self.key)) + len(self.key) + 1
         if self.value is not None:
             length += len("V %d\n" % len(self.value)) + len(self.value) + 1
@@ -152,10 +152,10 @@ class PropertySection(object):
         object.__init__(self)
         self.properties = properties
 
-    def __len__(self):
+    def dump_length(self):
         length = len(self.PROPS_END) + 1
         for property in self.properties:
-            length += len(property)
+            length += property.dump_length()
         return length
 
     def __iter__(self):
@@ -192,7 +192,7 @@ class Content(object):
         self.length = int(length)
         self.stream.block(self)
 
-    def __len__(self):
+    def dump_length(self):
         return self.length
 
     def __iter__(self):
