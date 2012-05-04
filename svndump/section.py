@@ -111,7 +111,7 @@ class Content(object):
     CHUNK_SIZE = 2048
 
     def __init__(self, stream, length):
-        object.__init__(self)
+        super(Content, self).__init__()
         self.stream = stream
         self.length = int(length)
         self.stream.block(self)

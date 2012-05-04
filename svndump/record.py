@@ -19,7 +19,7 @@ from .section import *
 
 class Record(object):
     def __init__(self, headers):
-        object.__init__(self)
+        super(Record, self).__init__()
         self.headers = headers
 
     def discard(self):
@@ -45,11 +45,12 @@ class Record(object):
 
         stream.error("unknown record");
 
+
 class VersionStampRecord(Record):
     VERSION_HEADER = "SVN-fs-dump-format-version"
 
     def __init__(self, headers):
-        Record.__init__(self, headers)
+        super(VersionStampRecord, self).__init__(headers)
         version = self.headers[self.VERSION_HEADER]
         if int(version) < 2:
             raise ValueError("unknown version '%s'" % version)
@@ -58,15 +59,17 @@ class VersionStampRecord(Record):
     def read(headers, stream):
         return VersionStampRecord(headers)
 
+
 class UuidRecord(Record):
     UUID_HEADER = "UUID"
 
     def __init__(self, headers):
-        Record.__init__(self, headers)
+        super(UuidRecord, self).__init__(headers)
 
     @staticmethod
     def read(headers, stream):
         return UuidRecord(headers)
+
 
 class RevisionRecord(Record):
     REVISION_NUMBER_HEADER = "Revision-number"
@@ -74,7 +77,7 @@ class RevisionRecord(Record):
     CONTENT_LENGTH = "Content-length"
 
     def __init__(self, headers, properties):
-        Record.__init__(self, headers)
+        super(RevisionRecord, self).__init__(headers)
         self.properties = properties
 
     def write(self, stream):
@@ -82,7 +85,7 @@ class RevisionRecord(Record):
         self.headers[self.PROP_CONTENT_LENGTH] = prop_length
         self.headers[self.CONTENT_LENGTH] = prop_length
 
-        Record.write(self, stream)
+        super(RevisionRecord, self).write(stream)
         self.properties.write(stream)
         stream.writeline()
 
@@ -90,6 +93,7 @@ class RevisionRecord(Record):
     def read(headers, stream):
         properties = PropertySection.read(stream)
         return RevisionRecord(headers, properties)
+
 
 class NodeRecord(Record):
     NODE_PATH_HEADER = "Node-path"
@@ -112,7 +116,7 @@ class NodeRecord(Record):
     TEXT_CONTENT_SHA1 = "Text-content-sha1"
 
     def __init__(self, headers, properties, content):
-        Record.__init__(self, headers)
+        super(NodeRecord, self).__init__(headers)
         self.properties = properties
         self.content = content
 
@@ -134,7 +138,7 @@ class NodeRecord(Record):
         if self.properties is not None or self.content is not None:
             self.headers[self.CONTENT_LENGTH] = prop_length + text_length
 
-        Record.write(self, stream)
+        super(NodeRecord, self).write(stream)
 
         if self.properties is not None:
             self.properties.write(stream)

@@ -21,7 +21,7 @@ from .record import *
 
 class DumpFileError(Exception):
     def __init__(self, offset, last_line, message):
-        Exception.__init__(self)
+        super(DumpFileError, self).__init__()
         self._offset = offset
         self._last_line = last_line
         self._message = message
@@ -32,13 +32,13 @@ class DumpFileError(Exception):
 
 class DumpFile(object):
     def __init__(self, file, mode, codec):
-        object.__init__(self)
+        super(DumpFile, self).__init__()
         self._buffer = io.open(file, mode=mode, closefd=False)
         self._codec = codec
 
 class DumpFileReader(DumpFile):
     def __init__(self, file, codec='ascii'):
-        DumpFile.__init__(self, file, 'rb', codec=codec)
+        super(DumpFileReader, self).__init__(file, 'rb', codec=codec)
         self._record = None
         self._offset = 0
         self._last_line = ""
@@ -99,7 +99,7 @@ class DumpFileReader(DumpFile):
 
 class DumpFileWriter(DumpFile):
     def __init__(self, file, codec='ascii'):
-        DumpFile.__init__(self, file, 'wb', codec=codec)
+        super(DumpFileWriter, self).__init__(file, 'wb', codec=codec)
 
     def writeline(self, line=""):
         data = "%s\n" % line
