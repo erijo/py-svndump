@@ -43,7 +43,7 @@ class Record(object):
         elif UuidRecord.UUID_HEADER in headers:
             return UuidRecord.read(headers, stream)
 
-        stream.error("unknown record %s" % headers[0].key);
+        stream.error("unknown record");
 
 class VersionStampRecord(Record):
     VERSION_HEADER = "SVN-fs-dump-format-version"

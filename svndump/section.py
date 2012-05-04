@@ -15,83 +15,36 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 
-class Header(object):
-    def __init__(self, key, value):
-        object.__init__(self)
-        self.key = key
-        self.value = value
+import collections
+
+class HeaderSection(collections.OrderedDict):
+    def __init__(self, *args, **kwargs):
+        super(HeaderSection, self).__init__(*args, **kwargs)
 
     def write(self, stream):
-        stream.writeline("%s: %s" % (self.key, self.value))
-
-    @staticmethod
-    def read(stream):
-        line = stream.readline()
-        if len(line) == 0:
-            return None
-        header = line.split(': ', 1)
-        if len(header) != 2:
-            stream.error("invalid header line")
-        return Header(header[0], header[1])
-
-class HeaderSection(object):
-    def __init__(self, headers):
-        object.__init__(self)
-        self.headers = headers
-
-    def write(self, stream):
-        for header in self.headers:
-            header.write(stream)
+        for key, value in self.items():
+            stream.writeline("%s: %s" % (key, value))
         stream.writeline()
 
     @staticmethod
     def read(stream):
-        headers = []
+        section = HeaderSection()
         try:
             while True:
-                header = Header.read(stream)
-                if header is None:
+                line = stream.readline()
+                # An empty line ends the header section
+                if len(line) == 0:
                     break
-                headers.append(header)
+                header = line.split(': ', 1)
+                if len(header) != 2:
+                    stream.error("invalid header line")
+                section[header[0]] = header[1]
         except EOFError:
-            if len(headers) != 0:
+            if len(section) != 0:
                 raise
-        if len(headers) == 0:
+        if len(section) == 0:
             return None
-        return HeaderSection(headers)
-
-    def __iter__(self):
-        return self.headers.__iter__()
-
-    def __getitem__(self, key):
-        for header in self.headers:
-            if header.key == key:
-                return header.value
-        try:
-            return self.headers[key]
-        except TypeError:
-            pass
-        raise KeyError(key)
-
-    def __setitem__(self, key, value):
-        for header in self.headers:
-            if header.key == key:
-                header.value = value
-                return
-        raise KeyError(key)
-
-    def __delitem__(self, key):
-        for header in self.headers:
-            if header.key == key:
-                self.headers.remove(header)
-                return
-        raise KeyError(key)
-
-    def __contains__(self, key):
-        for header in self.headers:
-            if header.key == key:
-                return True
-        return False
+        return section
 
 
 class PropertySection(dict):
