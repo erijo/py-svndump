@@ -98,15 +98,22 @@ class DumpFileReader(DumpFile):
         return data
 
 class DumpFileWriter(DumpFile):
+    class Writer(object):
+        def __init__(self, buffer, codec):
+            super(DumpFileWriter.Writer, self).__init__()
+            self._buffer = buffer
+            self._codec = codec
+
+        def writeline(self, line=""):
+            data = "%s\n" % line
+            self._buffer.write(data.encode(self._codec))
+
+        def write(self, data):
+            self._buffer.write(data)
+
     def __init__(self, file, codec='ascii'):
         super(DumpFileWriter, self).__init__(file, 'wb', codec=codec)
-
-    def writeline(self, line=""):
-        data = "%s\n" % line
-        self._buffer.write(data.encode(self._codec))
+        self._helper = DumpFileWriter.Writer(self._buffer, self._codec)
 
     def write(self, data):
-        if hasattr(data, 'write'):
-            data.write(self)
-        else:
-            self._buffer.write(data)
+        data.write(self._helper)
