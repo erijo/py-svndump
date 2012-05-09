@@ -15,9 +15,14 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA
 
-import collections
+try:
+    from collections import OrderedDict
+except ImportError:
+    # For python < 2.7 we try to use OrderedDict from
+    # http://pypi.python.org/pypi/ordereddict
+    from ordereddict import OrderedDict
 
-class HeaderSection(collections.OrderedDict):
+class HeaderSection(OrderedDict):
     def __init__(self, *args, **kwargs):
         super(HeaderSection, self).__init__(*args, **kwargs)
 
