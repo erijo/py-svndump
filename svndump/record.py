@@ -51,9 +51,6 @@ class VersionStampRecord(Record):
 
     def __init__(self, headers):
         super(VersionStampRecord, self).__init__(headers)
-        version = self.headers[self.VERSION_HEADER]
-        if int(version) < 2:
-            raise ValueError("unknown version '%s'" % version)
 
     @staticmethod
     def read(headers, stream):
